@@ -98,8 +98,8 @@ include(FetchContent)
 find_package(cxxopts QUIET)
 if(cxxopts_FOUND)
     message(STATUS "Found package cxxopts.")
+    message(STATUS ${cxxopts_INCLUDE_DIR})
     target_include_directories(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC
-            message(STATUS ${cxxopts_INCLUDE_DIR})
             $<BUILD_INTERFACE:${cxxopts_INCLUDE_DIR}/include>
             $<INSTALL_INTERFACE:include>
             )
