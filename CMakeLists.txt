@@ -134,7 +134,7 @@ else()
     FetchContent_GetProperties(fast_float)
     if(NOT fast_float_POPULATED)
         FetchContent_Populate(fast_float)
-        add_subdirectory(${fast_float_SOURCE_DIR} EXCLUDE_FROM_ALL)
+        add_subdirectory(${fast_float_SOURCE_DIR} ${fast_float_SOURCE_DIR} EXCLUDE_FROM_ALL)
     endif()
     add_dependencies(${PLSSVM_BASE_LIBRARY_NAME} fast_float)
     target_include_directories(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC
