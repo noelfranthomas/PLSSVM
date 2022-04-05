@@ -98,6 +98,10 @@ include(FetchContent)
 find_package(cxxopts QUIET)
 if(cxxopts_FOUND)
     message(STATUS "Found package cxxopts.")
+    target_include_directories(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC
+            $<BUILD_INTERFACE:${cxxopts_INCLUDE_DIR}/include>
+            $<INSTALL_INTERFACE:include>
+            )
 else()
     message(STATUS "Couldn't find package cxxopts. Building from source ...")
     # fetch command line parser library cxxopts
@@ -134,7 +138,6 @@ else()
     FetchContent_GetProperties(fast_float)
     if(NOT fast_float_POPULATED)
         FetchContent_Populate(fast_float)
-        message(STATUS ${fast_float_SOURCE_DIR})
         add_subdirectory(${fast_float_SOURCE_DIR}  ${fast_float_SOURCE_DIR}  EXCLUDE_FROM_ALL)
     endif()
     add_dependencies(${PLSSVM_BASE_LIBRARY_NAME} fast_float)
