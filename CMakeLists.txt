@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 project("PLSSVM - Parallel Least Squares Support Vector Machine"
-        VERSION 1.1.1
+        VERSION 1.2.0
         LANGUAGES CXX
         DESCRIPTION "A Least Squares Support Vector Machine implementation using different backends.")
 
@@ -29,6 +29,7 @@ configure_file(
 set(PLSSVM_BASE_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plssvm/detail/execution_range.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plssvm/detail/file_reader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/plssvm/detail/sha256.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plssvm/detail/string_utility.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plssvm/exceptions/exceptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/plssvm/exceptions/source_location.cpp
