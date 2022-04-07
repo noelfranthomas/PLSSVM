@@ -75,12 +75,15 @@ pipeline {
             steps{ // TODO: own spack and update  ?
                 sh '''
                     mkdir -p /data/scratch/jenkins/PLSSVM
+                    mkdir -p /data/scratch/jenkins/PLSSVM/tmp
+                    export TMP=/data/scratch/jenkins/PLSSVM/tmp
                     if [[ ! -d /data/scratch/jenkins/PLSSVM/spack ]]; then
                         git clone -b develop --depth 1 git@github.com:vancraar/spack.git /data/scratch/jenkins/PLSSVM/spack
                     fi
                     source /data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                     spack env activate spack_environments/cuda
                     spack install
+                    rm -rf /data/scratch/jenkins/PLSSVM/tmp
                 '''
             }
         }
