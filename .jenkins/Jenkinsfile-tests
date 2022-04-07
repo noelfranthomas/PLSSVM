@@ -73,11 +73,11 @@ pipeline {
         }
         stage('setup environment'){
             steps{ // TODO: own spack and update  ?
+                // mkdir -p /data/scratch/jenkins/PLSSVM
+                // if [[ ! -d spack ]]; then
+                //     git clone -b develop --depth 1 https://github.com/spack/spack.git /data/scratch/jenkins/PLSSVM/spack
+                // fi
                 sh '''
-                    // mkdir -p /data/scratch/jenkins/PLSSVM
-                    // if [[ ! -d spack ]]; then
-                    //     git clone -b develop --depth 1 https://github.com/spack/spack.git /data/scratch/jenkins/PLSSVM/spack
-                    // fi
                     source /import/sgs.scratch/vancraar/spack/share/spack/setup-env.sh
                     spack env activate spack_environments/cuda
                     spack install
