@@ -19,7 +19,7 @@ if (currentBuild.getBuildCauses().toString().contains('BranchIndexingCause')) {
 
 
 pipeline {
-    agent { label 'pcsgs04 || pcsgs05' }
+    agent { label 'pcsgs02 || pcsgs03 || pcsgs04 || pcsgs05' }
 
     options {
         buildDiscarder(
@@ -76,6 +76,7 @@ pipeline {
                 sh '''
                     mkdir -p /import/sgs.scratch/jenkins/PLSSVM
                     mkdir -p /data/scratch/jenkins/PLSSVM/tmp
+                    chmod g+r+w /data/scratch/jenkins
                     export TMP=/data/scratch/jenkins/PLSSVM/tmp
                     if [[ ! -d /import/sgs.scratch/jenkins/PLSSVM/spack ]]; then
                         git clone -b develop --depth 1 git@github.com:vancraar/spack.git /import/sgs.scratch/jenkins/PLSSVM/spack
