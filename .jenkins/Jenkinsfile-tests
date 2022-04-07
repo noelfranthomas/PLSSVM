@@ -158,7 +158,7 @@ pipeline {
         //             '''
         //         }
         //     }
-        }
+        //}
 /*
         stage('build plssvm DPC++ Debug') {
             steps {
