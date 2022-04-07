@@ -104,6 +104,7 @@ pipeline {
                     sh '''
                         source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                         spack env activate  --with-view -d spack_environments/cuda
+                        spack install
                         mkdir -p build/Release
                         cd build/Release
                         rm -rf *
@@ -120,6 +121,7 @@ pipeline {
                         sh '''
                             source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                             spack env activate  --with-view -d spack_environments/cuda
+                            spack install
                             cd build/Release
                             ctest -j4 --no-compress-output -T Test
                         '''
@@ -134,6 +136,7 @@ pipeline {
                     sh '''
                         source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                         spack env activate  --with-view -d spack_environments/cuda
+                        spack install
                         mkdir -p build/Debug_cov
                         cd build/Debug_cov
                         rm -rf *
