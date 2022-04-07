@@ -12,12 +12,16 @@ find_package(OpenMP)
 if(NOT OPENMP_FOUND)
     message(CHECK_FAIL "not found")
     if(PLSSVM_ENABLE_OPENMP_BACKEND MATCHES "ON")
-        message(FATAL_ERROR "Cannot find requested backend: OpenMP!")
+        message(SEND_ERROR "Cannot find requested backend: OpenMP!")
     endif()
     return()
 else()
     if(NOT DEFINED PLSSVM_CPU_TARGET_ARCHS)
-        message(STATUS "Found requested OpenMP backend, but no \"cpu\" targets were specified!")
+        if(PLSSVM_ENABLE_OPENMP_BACKEND MATCHES "ON")
+            message(SEND_ERROR "Found requested OpenMP backend, but no \"cpu\" targets were specified!")
+        else()
+            message(STATUS "Found OpenMP backend, but no \"cpu\" targets were specified!")
+        endif()
         message(CHECK_FAIL "skipped")
         return()
     endif()
@@ -34,7 +38,7 @@ set(PLSSVM_OPENMP_SOURCES
 
 
 # set target properties
-set_local_and_parent(PLSSVM_OPENMP_BACKEND_LIBRARY_NAME svm-OpenMP)
+set_local_and_parent(PLSSVM_OPENMP_BACKEND_LIBRARY_NAME plssvm-OpenMP)
 add_library(${PLSSVM_OPENMP_BACKEND_LIBRARY_NAME} STATIC ${PLSSVM_OPENMP_SOURCES})
 target_link_libraries(${PLSSVM_OPENMP_BACKEND_LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
 # special command line options for MSVC:

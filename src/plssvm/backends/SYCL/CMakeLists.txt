@@ -41,7 +41,7 @@ endfunction()
 
 
 # set target properties
-set_local_and_parent(PLSSVM_SYCL_BACKEND_LIBRARY_NAME svm-SYCL)
+set_local_and_parent(PLSSVM_SYCL_BACKEND_LIBRARY_NAME plssvm-SYCL)
 add_library(${PLSSVM_SYCL_BACKEND_LIBRARY_NAME} INTERFACE)
 
 # list of found SYCL implementations
@@ -79,7 +79,7 @@ if(hipSYCL_FOUND)
     configure_sycl("${PLSSVM_SYCL_BACKEND_INCLUDE_NAME}" PLSSVM_SYCL_HIPSYCL_SOURCES)
 
     # set target properties
-    set_local_and_parent(PLSSVM_SYCL_BACKEND_HIPSYCL_LIBRARY_NAME svm-SYCL_hipsycl)
+    set_local_and_parent(PLSSVM_SYCL_BACKEND_HIPSYCL_LIBRARY_NAME plssvm-SYCL_hipsycl)
     add_library(${PLSSVM_SYCL_BACKEND_HIPSYCL_LIBRARY_NAME} SHARED ${PLSSVM_SYCL_HIPSYCL_SOURCES} ${CMAKE_CURRENT_LIST_DIR}/../gpu_csvm.cpp)
     list(APPEND PLSSVM_TARGETS_TO_INSTALL "${PLSSVM_SYCL_BACKEND_HIPSYCL_LIBRARY_NAME}")
 
@@ -140,7 +140,7 @@ if(PLSSVM_SYCL_BACKEND_CHECK_FOR_DPCPP_COMPILER)
     configure_sycl("${PLSSVM_SYCL_BACKEND_INCLUDE_NAME}" PLSSVM_SYCL_DPCPP_SOURCES)
 
     # set target properties
-    set_local_and_parent(PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME svm-SYCL_dpcpp)
+    set_local_and_parent(PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME plssvm-SYCL_dpcpp)
     add_library(${PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME} SHARED ${PLSSVM_SYCL_DPCPP_SOURCES} ${CMAKE_CURRENT_LIST_DIR}/../gpu_csvm.cpp)
     list(APPEND PLSSVM_TARGETS_TO_INSTALL "${PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME}")
 
@@ -158,7 +158,7 @@ if(PLSSVM_SYCL_BACKEND_CHECK_FOR_DPCPP_COMPILER)
 
     # TODO: remove if DPC++ bug is fixed
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        message(FATAL_ERROR "The SYCL backend when using DPC++ currently does not support the Debug build type. For more information see: https://github.com/intel/llvm/issues/5754")
+        message(SEND_ERROR "The SYCL backend when using DPC++ currently does not support the Debug build type. For more information see: https://github.com/intel/llvm/issues/5754")
     endif()
 
     # enable DPC++ SYCL support
@@ -189,7 +189,7 @@ if(PLSSVM_SYCL_BACKEND_CHECK_FOR_DPCPP_COMPILER)
         list(APPEND PLSSVM_DPCPP_FSYCL_TARGETS "amdgcn-amd-amdhsa")
         # add target specific flags for AOT -> must always be specified von amd targets
         if(NOT PLSSVM_NUM_AMD_TARGET_ARCHS EQUAL 1)
-            message(FATAL_ERROR "DPC++ currently only supports a single AMD architecture specification but ${PLSSVM_NUM_AMD_TARGET_ARCHS} were provided!")
+            message(SEND_ERROR "DPC++ currently only supports a single AMD architecture specification but ${PLSSVM_NUM_AMD_TARGET_ARCHS} were provided!")
         endif()
         target_compile_options(${PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME} PRIVATE -Xsycl-target-backend=amdgcn-amd-amdhsa --offload-arch=${PLSSVM_AMD_TARGET_ARCHS})
         target_link_options(${PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME} PRIVATE -Xsycl-target-backend=amdgcn-amd-amdhsa --offload-arch=${PLSSVM_AMD_TARGET_ARCHS})
@@ -222,7 +222,7 @@ if(PLSSVM_SYCL_BACKEND_CHECK_FOR_DPCPP_COMPILER)
         if(DEFINED PLSSVM_NVIDIA_TARGET_ARCHS)
             # add target specific flags for AOT
             if(NOT PLSSVM_NUM_NVIDIA_TARGET_ARCHS EQUAL 1)
-                message(FATAL_ERROR "DPC++ currently only supports a single NVIDIA architecture specification for AOT but ${PLSSVM_NUM_NVIDIA_TARGET_ARCHS} were provided!")
+                message(SEND_ERROR "DPC++ currently only supports a single NVIDIA architecture specification for AOT but ${PLSSVM_NUM_NVIDIA_TARGET_ARCHS} were provided!")
             endif()
             target_compile_options(${PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME} PRIVATE -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=${PLSSVM_NVIDIA_TARGET_ARCHS})
             target_link_options(${PLSSVM_SYCL_BACKEND_DPCPP_LIBRARY_NAME} PRIVATE -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=${PLSSVM_NVIDIA_TARGET_ARCHS})
@@ -254,7 +254,7 @@ endif()
 if(NOT PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS)
     message(CHECK_FAIL "not found")
     if(PLSSVM_ENABLE_SYCL_BACKEND MATCHES "ON")
-        message(FATAL_ERROR "Cannot find requested backend: SYCL!")
+        message(SEND_ERROR "Cannot find requested backend: SYCL!")
     endif()
     return()
 endif()
@@ -263,10 +263,10 @@ endif()
 list(LENGTH PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS PLSSVM_SYCL_BACKEND_NUM_FOUND_IMPLEMENTATIONS)
 if(PLSSVM_SYCL_BACKEND_NUM_FOUND_IMPLEMENTATIONS GREATER 1)
     if(NOT DEFINED ENV{PLSSVM_SYCL_HIPSYCL_INCLUDE_DIR})
-        message(FATAL_ERROR "Found more than one SYCL implementation, but the environment variable \"PLSSVM_SYCL_HIPSYCL_INCLUDE_DIR\" isn't set!")
+        message(SEND_ERROR "Found more than one SYCL implementation, but the environment variable \"PLSSVM_SYCL_HIPSYCL_INCLUDE_DIR\" isn't set!")
     endif()
     if(NOT DEFINED ENV{PLSSVM_SYCL_DPCPP_INCLUDE_DIR})
-        message(FATAL_ERROR "Found more than one SYCL implementation, but the environment variable \"PLSSVM_SYCL_DPCPP_INCLUDE_DIR\" isn't set!")
+        message(SEND_ERROR "Found more than one SYCL implementation, but the environment variable \"PLSSVM_SYCL_DPCPP_INCLUDE_DIR\" isn't set!")
     endif()
 endif()
 message(CHECK_PASS "found")
@@ -281,14 +281,14 @@ if(DEFINED PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION)
         message(STATUS "Setting preferred SYCL implementation to \"${PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION}\".")
     else()
         # value not recognized
-        message(FATAL_ERROR "\"${PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION}\" as preferred SYCL implementation unrecognized or not available! Possible values are: ${PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS}.")
+        message(SEND_ERROR "\"${PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION}\" as preferred SYCL implementation unrecognized or not available! Possible values are: ${PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS}.")
     endif()
 else()
     # no command line value provided -> try to infer preferred SYCL implementation
     list(LENGTH PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS_NUM)
     if(PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS_NUM GREATER 1)
         # more than one SYCL implementation found -> can't infer preferred SYCL implementation
-        message(FATAL_ERROR "Found more than one SYCL implementation, but \"PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION\" hasn't been set!")
+        message(SEND_ERROR "Found more than one SYCL implementation, but \"PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION\" hasn't been set!")
     else()
         # use only available SYCL implementation as preferred implementation
         target_compile_definitions(${PLSSVM_SYCL_BACKEND_LIBRARY_NAME} INTERFACE PLSSVM_SYCL_BACKEND_PREFERRED_IMPLEMENTATION=${PLSSVM_SYCL_BACKEND_FOUND_IMPLEMENTATIONS})

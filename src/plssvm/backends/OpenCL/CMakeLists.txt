@@ -12,7 +12,7 @@ find_package(OpenCL)
 if(NOT OpenCL_FOUND)
     message(CHECK_FAIL "not found")
     if(PLSSVM_ENABLE_OPENCL_BACKEND MATCHES "ON")
-        message(FATAL_ERROR "Cannot find requested backend: OpenCL!")
+        message(SEND_ERROR "Cannot find requested backend: OpenCL!")
     endif()
     return()
 endif()
@@ -33,7 +33,7 @@ set(PLSSVM_OPENCL_SOURCES
 )
 
 # set target properties
-set_local_and_parent(PLSSVM_OPENCL_BACKEND_LIBRARY_NAME svm-OpenCL)
+set_local_and_parent(PLSSVM_OPENCL_BACKEND_LIBRARY_NAME plssvm-OpenCL)
 add_library(${PLSSVM_OPENCL_BACKEND_LIBRARY_NAME} STATIC ${PLSSVM_OPENCL_SOURCES})
 target_include_directories(${PLSSVM_OPENCL_BACKEND_LIBRARY_NAME} PUBLIC ${OpenCL_INCLUDE_DIRS})
 target_link_libraries(${PLSSVM_OPENCL_BACKEND_LIBRARY_NAME} PUBLIC OpenCL)
@@ -66,7 +66,7 @@ configure_file("${PROJECT_SOURCE_DIR}/include/plssvm/backends/OpenCL/detail/kern
                "${PROJECT_SOURCE_DIR}/include/plssvm/backends/OpenCL/detail/kernel_source_string.hpp" @ONLY)
 
 # set OpenCL target version
-target_compile_definitions(${PLSSVM_OPENCL_BACKEND_LIBRARY_NAME} PUBLIC CL_TARGET_OPENCL_VERSION=220)
+target_compile_definitions(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC CL_TARGET_OPENCL_VERSION=220)
 
 # set compile definition that the OpenCL backend is available
 target_compile_definitions(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC PLSSVM_HAS_OPENCL_BACKEND)

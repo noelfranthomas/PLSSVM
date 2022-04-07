@@ -45,10 +45,10 @@ set(PLSSVM_BASE_SOURCES
 )
 
 ## create base library: linked against all backend libraries
-set(PLSSVM_BASE_LIBRARY_NAME svm-base)
+set(PLSSVM_BASE_LIBRARY_NAME plssvm-base)
 add_library(${PLSSVM_BASE_LIBRARY_NAME} STATIC ${PLSSVM_BASE_SOURCES})
 ## create all library: one target against all backends are linked
-set(PLSSVM_ALL_LIBRARY_NAME svm-all)
+set(PLSSVM_ALL_LIBRARY_NAME plssvm-all)
 add_library(${PLSSVM_ALL_LIBRARY_NAME} INTERFACE)
 
 ## create list of targets to install
@@ -184,10 +184,10 @@ target_link_libraries(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC fmt::fmt)
 ##                                                 create executables                                                 ##
 ########################################################################################################################
 ## create train executable
-set(PLSSVM_EXECUTABLE_TRAIN_NAME svm-train)
+set(PLSSVM_EXECUTABLE_TRAIN_NAME plssvm-train)
 add_executable(${PLSSVM_EXECUTABLE_TRAIN_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/main_train.cpp)
 ## create predict executable
-set(PLSSVM_EXECUTABLE_PREDICT_NAME svm-predict)
+set(PLSSVM_EXECUTABLE_PREDICT_NAME plssvm-predict)
 add_executable(${PLSSVM_EXECUTABLE_PREDICT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/main_predict.cpp)
 
 ## append executables to installed targets
@@ -250,7 +250,36 @@ if(DEFINED PLSSVM_TARGET_PLATFORMS)
 elseif(DEFINED ENV{PLSSVM_TARGET_PLATFORMS})
     set(PLSSVM_TARGET_PLATFORMS $ENV{PLSSVM_TARGET_PLATFORMS} CACHE STRING "The target platforms to compile for." FORCE)
 else()
-    message(FATAL_ERROR "PLSSVM_TARGET_PLATFORMS must be defined (e.g. -DPLSSVM_TARGET_PLATFORMS=\"cpu;nvidia:sm_70,sm_86;amd:gfx906;intel\"!")
+    # check for Python3 and all necessary libraries
+    find_package(Python3 COMPONENTS Interpreter Development)
+    if(NOT Python3_FOUND)
+        message(FATAL_ERROR "Can't find Python3. Please manually specify PLSSVM_TARGET_PLATFORMS (e.g. -DPLSSVM_TARGET_PLATFORMS=\"cpu;nvidia:sm_70,sm_86;amd:gfx906;intel:skl\"!")
+    endif()
+
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_python_libs.cmake)
+    set(PLSSVM_TARGET_PLATFORMS_PYTHON_SCRIPT_REQUIRED_LIBS cpuinfo GPUtil pyamdgpuinfo pylspci)
+    message(STATUS "Checking required Python3 libraries (${PLSSVM_TARGET_PLATFORMS_PYTHON_SCRIPT_REQUIRED_LIBS}) to automatically determine the PLSSVM_TARGET_PLATFORMS.")
+    set(PLSSVM_TARGET_PLATFORMS_PYTHON_SCRIPT_REQUIRED_LIBS_ERROR_MESSAGE "or manually define PLSSVM_TARGET_PLATFORMS (e.g. -DPLSSVM_TARGET_PLATFORMS=\"cpu;nvidia:sm_70,sm_86;amd:gfx906;intel:skl\"!")
+    check_python_libs(${PLSSVM_TARGET_PLATFORMS_PYTHON_SCRIPT_REQUIRED_LIBS} ${PLSSVM_TARGET_PLATFORMS_PYTHON_SCRIPT_REQUIRED_LIBS_ERROR_MESSAGE})
+
+    # run our `plssvm_target_platforms.py` script to determine the PLSSVM_TARGET_PLATFORMS string
+    execute_process(
+            COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/utility_scripts/plssvm_target_platforms.py" "--quiet"
+            RESULT_VARIABLE PLSSVM_PYTHON_TARGET_PLATFORMS_EXIT_CODE
+            OUTPUT_VARIABLE PLSSVM_PYTHON_TARGET_PLATFORMS_OUTPUT
+    )
+
+    # an error occurred when running our python script
+    if(NOT ${PLSSVM_PYTHON_TARGET_PLATFORMS_EXIT_CODE} EQUAL 0)
+        message(FATAL_ERROR
+                "Error running 'utility_scripts/plssvm_target_platforms.py'."
+                "Please manually specify PLSSVM_TARGET_PLATFORMS (e.g. -DPLSSVM_TARGET_PLATFORMS=\"cpu;nvidia:sm_70,sm_86;amd:gfx906;intel:skl\"!"
+        )
+    endif()
+
+    # set PLSSVM_TARGET_PLATFORMS
+    string(STRIP "${PLSSVM_PYTHON_TARGET_PLATFORMS_OUTPUT}" PLSSVM_TARGET_PLATFORMS)
+    message(STATUS "Automatically derived PLSSVM_TARGET_PLATFORMS=\"${PLSSVM_TARGET_PLATFORMS}\".")
 endif()
 
 ## PLSSVM_TARGET_PLATFORMS must not be empty
@@ -364,7 +393,7 @@ if(DEFINED PLSSVM_THREAD_BLOCK_SIZE)
         # add target definition
         target_compile_definitions(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC PLSSVM_THREAD_BLOCK_SIZE=${PLSSVM_THREAD_BLOCK_SIZE})
     else()
-        message(FATAL_ERROR "PLSSVM_THREAD_BLOCK_SIZE must be an integer greater than 0 but is \"${PLSSVM_THREAD_BLOCK_SIZE}\"!")
+        message(SEND_ERROR "PLSSVM_THREAD_BLOCK_SIZE must be an integer greater than 0 but is \"${PLSSVM_THREAD_BLOCK_SIZE}\"!")
     endif()
 endif()
 
@@ -378,7 +407,7 @@ if(DEFINED PLSSVM_INTERNAL_BLOCK_SIZE)
         # add target definition
         target_compile_definitions(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC PLSSVM_INTERNAL_BLOCK_SIZE=${PLSSVM_INTERNAL_BLOCK_SIZE})
     else()
-        message(FATAL_ERROR "PLSSVM_INTERNAL_BLOCK_SIZE must be an integer greater than 0 but is \"${PLSSVM_INTERNAL_BLOCK_SIZE}\"!")
+        message(SEND_ERROR "PLSSVM_INTERNAL_BLOCK_SIZE must be an integer greater than 0 but is \"${PLSSVM_INTERNAL_BLOCK_SIZE}\"!")
     endif()
 endif()
 
@@ -392,14 +421,14 @@ if(DEFINED PLSSVM_OPENMP_BLOCK_SIZE)
         # add target definition
         target_compile_definitions(${PLSSVM_BASE_LIBRARY_NAME} PUBLIC PLSSVM_OPENMP_BLOCK_SIZE=${PLSSVM_OPENMP_BLOCK_SIZE})
     else()
-        message(FATAL_ERROR "PLSSVM_OPENMP_BLOCK_SIZE must be an integer greater than 0 but is \"${PLSSVM_OPENMP_BLOCK_SIZE}\"!")
+        message(SEND_ERROR "PLSSVM_OPENMP_BLOCK_SIZE must be an integer greater than 0 but is \"${PLSSVM_OPENMP_BLOCK_SIZE}\"!")
     endif()
 endif()
 
 ## change executable floating points from double precision to single precision
-option(PLSSVM_EXECUTABLES_USE_SINGLE_PRECISION "Build the svm-train and svm-predict executables with single precision instead of double precision." OFF)
+option(PLSSVM_EXECUTABLES_USE_SINGLE_PRECISION "Build the ${PLSSVM_EXECUTABLE_TRAIN_NAME} and ${PLSSVM_EXECUTABLE_PREDICT_NAME} executables with single precision instead of double precision." OFF)
 if(PLSSVM_EXECUTABLES_USE_SINGLE_PRECISION)
-    message(STATUS "Using single precision floating point numbers for svm-train and svm-predict.")
+    message(STATUS "Using single precision floating point numbers for ${PLSSVM_EXECUTABLE_TRAIN_NAME} and ${PLSSVM_EXECUTABLE_PREDICT_NAME}.")
     target_compile_definitions(${PLSSVM_EXECUTABLE_TRAIN_NAME} PRIVATE PLSSVM_EXECUTABLES_USE_SINGLE_PRECISION)
     target_compile_definitions(${PLSSVM_EXECUTABLE_PREDICT_NAME} PRIVATE PLSSVM_EXECUTABLES_USE_SINGLE_PRECISION)
 endif()
@@ -411,13 +440,13 @@ endif()
 option(PLSSVM_ENABLE_LTO "Enable Link Time Optimizations." ON)
 if(PLSSVM_ENABLE_LTO)
     include(CheckIPOSupported)
-    check_ipo_supported(RESULT PLSSVM_LTO_SUPPORTED OUTPUT PLSSVM_LTO_ERROR LANGUAGES CXX)
+    check_ipo_supported(RESULT PLSSVM_LTO_SUPPORTED LANGUAGES CXX)
     if(PLSSVM_LTO_SUPPORTED)
         message(STATUS "Interprocedural optimization (IPO/LTO) enabled.")
         set_property(TARGET ${PLSSVM_EXECUTABLE_TRAIN_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
         set_property(TARGET ${PLSSVM_EXECUTABLE_PREDICT_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
     else()
-        message(STATUS "Interprocedural optimization (IPO/LTO) requested but not supported: ${PLSSVM_LTO_ERROR}")
+        message(STATUS "Interprocedural optimization (IPO/LTO) not supported.")
     endif()
 endif()
 
