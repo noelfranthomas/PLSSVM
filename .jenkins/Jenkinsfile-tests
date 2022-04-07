@@ -84,7 +84,6 @@ pipeline {
                 '''
             }
         }
-        stag
         stage('setup python'){
             steps{
                 sh '''
