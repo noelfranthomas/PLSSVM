@@ -84,8 +84,7 @@ pipeline {
                     source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                     spack env activate spack_environments/cuda
                     spack install
-                    cat /data/scratch/jenkins/PLSSVM/tmp/simsgs/spack-stage/spack-stage-cuda-11.6.2-ngf3sjq3gaxombd5rm54lukancxutppf/spack-build-out.txt
-                    // rm -rf /import/sgs.scratch/jenkins/PLSSVM/tmp
+                    rm -rf /import/sgs.scratch/jenkins/PLSSVM/tmp
                 '''
             }
         }
