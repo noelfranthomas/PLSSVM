@@ -19,7 +19,7 @@ if (currentBuild.getBuildCauses().toString().contains('BranchIndexingCause')) {
 
 
 pipeline {
-    agent { label 'pcsgs02 || pcsgs03 || pcsgs04 || pcsgs05' }
+    agent { label 'pcsgs04 || pcsgs05' }
 
     options {
         buildDiscarder(
