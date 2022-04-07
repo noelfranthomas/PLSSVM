@@ -78,7 +78,7 @@ pipeline {
                     if [[ ! -d spack ]]; then
                         git clone -b develop --depth 1 git@github.com:vancraar/spack.git /data/scratch/jenkins/PLSSVM/spack
                     fi
-                    source data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
+                    source /data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                     spack env activate spack_environments/cuda
                     spack install
                 '''
@@ -98,7 +98,7 @@ pipeline {
             steps {
                 dir('plssvm') {
                     sh '''
-                        source data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
+                        source /data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                         spack env activate spack_environments/cuda
                         mkdir -p build/Release
                         cd build/Release
@@ -114,7 +114,7 @@ pipeline {
                 dir('plssvm') {
                     warnError('Release tests failed!') {
                         sh '''
-                            source data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
+                            source /data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                             spack env activate spack_environments/cuda
                             cd build/Release
                             ctest -j4 --no-compress-output -T Test
@@ -128,7 +128,7 @@ pipeline {
             steps {
                 dir('plssvm') {
                     sh '''
-                        source data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
+                        source /data/scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                         spack env activate spack_environments/cuda
                         mkdir -p build/Debug_cov
                         cd build/Debug_cov
