@@ -85,6 +85,10 @@ pipeline {
                     spack env activate  --with-view -d spack_environments/cuda
                     spack install
                     rm -rf /import/scratch/jenkins/PLSSVM/tmp
+                    rm -rf /tmp/CMakeHIPCompilerId*
+                    rm -rf /tmp/csvm*
+                    rm -rf /tmp/device_ptr*
+                    rm -rf /tmp/exceptsions*
                 '''
             }
         }
