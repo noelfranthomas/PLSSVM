@@ -19,7 +19,7 @@ if (currentBuild.getBuildCauses().toString().contains('BranchIndexingCause')) {
 
 
 pipeline {
-    agent { label ' pcsgs03 ||  pcsgs05' }
+    agent { label ' pcsgs02 ' }
 
     options {
         buildDiscarder(
@@ -75,6 +75,7 @@ pipeline {
             steps{ // TODO: own spack and update  ?
                 sh '''
                     bash
+                    rm -rf /tmp/*
                     mkdir -p /import/sgs.scratch/jenkins/PLSSVM
                     mkdir -p /data/scratch/jenkins/PLSSVM/tmp
                     chmod a+rwx /data/scratch/jenkins
