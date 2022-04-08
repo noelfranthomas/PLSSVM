@@ -76,7 +76,8 @@ pipeline {
                 sh '''
                     mkdir -p /import/sgs.scratch/jenkins/PLSSVM
                     mkdir -p /data/scratch/jenkins/PLSSVM/tmp
-                    chmod --recursive a+rw /data/scratch/jenkins/PLSSVM
+                    chmod a+rwx /data/scratch/jenkins
+                    chmod --recursive a+rwx /data/scratch/jenkins/PLSSVM
                     export TMP=/data/scratch/jenkins/PLSSVM/tmp
                     if [[ ! -d /import/sgs.scratch/jenkins/PLSSVM/spack ]]; then
                         git clone -b develop --depth 1 git@github.com:vancraar/spack.git /import/sgs.scratch/jenkins/PLSSVM/spack
@@ -84,7 +85,7 @@ pipeline {
                     source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                     spack env activate  --with-view -d spack_environments/cuda
                     spack install
-                    rm -rf /import/scratch/jenkins/PLSSVM/tmp
+                    // rm -rf /data/scratch/jenkins/PLSSVM/tmp
                     rm -rf /tmp/CMakeHIPCompilerId*
                     rm -rf /tmp/csvm*
                     rm -rf /tmp/device_ptr*
