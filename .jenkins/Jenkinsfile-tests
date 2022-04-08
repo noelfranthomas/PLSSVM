@@ -112,7 +112,7 @@ pipeline {
                         mkdir -p build/Release
                         cd build/Release
                         rm -rf *
-                        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX=clang++ -DPLSSVM_TARGET_PLATFORMS="cpu;nvidia:sm_86" -DPLSSVM_ENABLE_OPENMP_BACKEND=OFF -DPLSSVM_ENABLE_CUDA_BACKEND=ON -DPLSSVM_ENABLE_OPENCL_BACKEND=OFF -DPLSSVM_ENABLE_SYCL_BACKEND=ON -DPLSSVM_ENABLE_ASSERTS=ON ../../
+                        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX=clang++ -DPLSSVM_TARGET_PLATFORMS="cpu;nvidia:sm_80" -DPLSSVM_ENABLE_OPENMP_BACKEND=OFF -DPLSSVM_ENABLE_CUDA_BACKEND=ON -DPLSSVM_ENABLE_OPENCL_BACKEND=OFF -DPLSSVM_ENABLE_SYCL_BACKEND=ON -DPLSSVM_ENABLE_ASSERTS=ON ../../
                         make -j4
                     '''
                 }
