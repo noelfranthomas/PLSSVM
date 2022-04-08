@@ -85,7 +85,7 @@ pipeline {
                     fi
                     source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                     spack env activate  --with-view -d spack_environments/cuda
-                    spack install
+                    spack install || echo ""
                     chmod --recursive a+rwx /data/scratch/jenkins/PLSSVM
                     // rm -rf /data/scratch/jenkins/PLSSVM/tmp
                     rm -rf /tmp/CMakeHIPCompilerId*
