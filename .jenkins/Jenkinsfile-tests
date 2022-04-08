@@ -74,6 +74,7 @@ pipeline {
         stage('setup environment'){
             steps{ // TODO: own spack and update  ?
                 sh '''
+                    bash
                     mkdir -p /import/sgs.scratch/jenkins/PLSSVM
                     mkdir -p /data/scratch/jenkins/PLSSVM/tmp
                     chmod a+rwx /data/scratch/jenkins
@@ -85,6 +86,7 @@ pipeline {
                     source /import/sgs.scratch/jenkins/PLSSVM/spack/share/spack/setup-env.sh
                     spack env activate  --with-view -d spack_environments/cuda
                     spack install
+                    chmod --recursive a+rwx /data/scratch/jenkins/PLSSVM
                     // rm -rf /data/scratch/jenkins/PLSSVM/tmp
                     rm -rf /tmp/CMakeHIPCompilerId*
                     rm -rf /tmp/csvm*
