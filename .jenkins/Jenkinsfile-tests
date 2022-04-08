@@ -76,7 +76,7 @@ pipeline {
                 sh '''
                     mkdir -p /import/sgs.scratch/jenkins/PLSSVM
                     mkdir -p /data/scratch/jenkins/PLSSVM/tmp
-                    chmod a+rw /data/scratch/jenkins/PLSSVM
+                    chmod --recursive a+rw /data/scratch/jenkins/PLSSVM
                     export TMP=/data/scratch/jenkins/PLSSVM/tmp
                     if [[ ! -d /import/sgs.scratch/jenkins/PLSSVM/spack ]]; then
                         git clone -b develop --depth 1 git@github.com:vancraar/spack.git /import/sgs.scratch/jenkins/PLSSVM/spack
