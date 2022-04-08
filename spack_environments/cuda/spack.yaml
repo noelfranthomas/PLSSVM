@@ -8,6 +8,7 @@ spack:
   specs:
   - cuda
   - 'cmake@3.21:'
-  - dpcpp@2021.12
+  - dpcpp@2021.12+cuda+openmp
+
   concretization: together
   view: true
