@@ -82,3 +82,7 @@ tests/data/*
 !tests/data/libsvm/
 !tests/data/arff/
 !tests/data/predict/
+
+# spack
+.spack-env/
+spack.lock
