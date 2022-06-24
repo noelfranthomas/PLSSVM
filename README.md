@@ -474,3 +474,91 @@ For a full list of all publications involving PLSSVM see our [Wiki Page](https:/
 ## License
 
 The PLSSVM library is distributed under the MIT [license](https://github.com/SC-SGS/PLSSVM/blob/main/LICENSE.md).
+
+## Performance 
+
+In this section we want to present some performance results.
+Note that all results are performed on synthetic **dense** data sets.
+
+### Strong Scaling
+
+Given the time needed to complete a serial task **t(1)** and the time to complete the same amount of work using **N** 
+processing units is **t(N)**, then the Speedup is given as:
+
+$$ Speedup = \dfrac{t(1)}{t(N)} $$
+
+<p align="center">
+  <img alt="strong scaling CPU" src=".figures/strong_scaling_cpu.png" width="48%">
+    &nbsp; &nbsp;
+  <img alt="strong scaling GPU" src=".figures/strong_scaling_gpu.png" width="48%">
+</p>
+
+Strong scaling behavior of the OpenMP backend on two AMD EPYC 7742 with a total of 128 cores and 256 hyper-threads as 
+well as the CUDA backend on eight NVIDIA GTX 1080 Ti GPUs.
+The problem sizes were fixed to 8192 data points with 4906 features each and 32768 data points with 8192 features each respectively
+and the number of compute resources is increased.
+
+On the CPUs as well as on the GPUs the Conjugate Gradient implementation scales by far the best.
+On the CPUs it has near perfect scaling on upto 64 cores. 
+The scaling only gets worse after we use two sockets instead of one and becomes unsatisfactory if we start using hyper-threads.
+Reading the data set and writing the resulting model scales worse compared to the CG algorithm.
+Using multiple GPUs doesn't improve the read and write performance (since these are CPU only operations).
+However, the CG algorithm has near perfect scaling on upto eight GPUs.
+
+### Weak Scaling
+
+Given the time needed to complete a work unit with one processing unit **t(1)** and the time to complete N of the same work
+units with N processing units **t(N)**, then the weak scaling efficiency is given as:
+
+$$ Efficiency = \dfrac{t(1)}{t(N)} $$
+
+<p align="center">
+  <img alt="weak scaling CPU" src=".figures/weak_scaling_cpu.png" width="48%">
+    &nbsp; &nbsp;
+  <img alt="weak scaling GPU" src=".figures/weak_scaling_gpu.png" width="48%">
+</p>
+
+Weak scaling behavior of the OpenMP backend on two AMD EPYC 7742 with a total of 128 cores and 256 hyper-threads as
+well as the CUDA backend on eight NVIDIA GTX 1080 Ti GPUs.
+The number of data points are fixed to 2048 respectively 16384 and the number of features is scaled according to the used resources:
+doubling the number of cores or GPUs also doubles the number of used features.
+Note that the number of CG iterations has been fixed to 30 since they would vary using differently sized data sets.
+
+Again on the CPUs as well as on the GPUs the Conjugate Gradient implementation scales by far the best.
+On the CPUs the weak scaling is ok until we leave a single socket.
+Then again the scaling behavior strongly degenerates.
+Using the GPUs, the CG algorithm again scales near perfectly on upto eight GPUs.
+One noticeably difference is, that the weak scaling performance of the write part is worse than the read part.
+
+### Comparisons between different backends
+
+We also compare the runtimes of our different backends on different hardware platforms.
+
+For the first comparison NVIDIA data center and consumer grade GPUs and an AMD GPU are used.
+We use the real world [SAT-6 airbone data set](https://csc.lsu.edu/~saikat/deepsat/).
+The train data set contains 324000 data points with 3136 features each while the test data set contains 81000 data points.
+Since currently only binary classification is supported, the six labels are mapped two to labels: +1 (building and road) and -1 (barren lands, trees, grassland, and water).
+The times were generated with the hipSYCL version Z and the DPC++ version A.
+
+The parameters were selected such that we achieved an accuracy of 96.97% on the test data set.
+
+| Hardware           | OpenMP |   CUDA    | HIP | OpenCL | hipSYCL nd_range | hipSYCL hierarchical | DPC++ nd_range | DPC++ hierarchical |
+|--------------------|:------:|:---------:|:---:|:------:|:----------------:|:--------------------:|:--------------:|:------------------:|
+| NVIDIA A100        |   -    | 15min 10s | TBA |        |                  |                      |                |                    |
+| NVIDIA P100        |   -    |           | TBA |        |                  |                      |                |                    |
+| NVIDIA RTX 3080    |   -    |           | TBA |        |                  |                      |                |                    |
+| NVIDIA GTX 1080 Ti |   -    |           | TBA |        |                  |                      |                |                    |
+| AMD Radeon VII Pro |   -    |           |     |        |                  |                      |                |                    |
+
+| Hardware           | OpenMP | CUDA | HIP | OpenCL | hipSYCL nd_range | hipSYCL hierarchical | DPC++ nd_range | DPC++ hierarchical |
+|--------------------|:------:|:----:|:---:|:------:|:----------------:|:--------------------:|:--------------:|:------------------:|
+| Intel UHD P630     |   -    |  -   |  -  |        |                  |                      |                |                    |
+| Intel Iris Xe MAX  |   -    |  -   |  -  |        |                  |                      |                |                    |
+
+| Hardware                     | OpenMP | CUDA | HIP | OpenCL | hipSYCL nd_range | hipSYCL hierarchical | DPC++ nd_range | DPC++ hierarchical |
+|------------------------------|:------:|:----:|:---:|:------:|:----------------:|:--------------------:|:--------------:|:------------------:|
+| AMD EPYC 7742                |        |  -   |  -  |        |                  |                      |                |                    |
+| AMD Ryzen ThreadRipper 3960X |        |  -   |  -  |        |                  |                      |                |                    |
+| Intel Xeon Phi 7210          |        |  -   |  -  |        |                  |                      |                |                    |
+| Intel Xeon E-2176G           |        |  -   |  -  |        |                  |                      |                |                    |
+| Intel Core i9-10920X         |        |  -   |  -  |        |                  |                      |                |                    |
