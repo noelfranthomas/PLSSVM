@@ -11,6 +11,10 @@ This is also the reason, why SVMs are also called "large margin classifiers".
 To predict to which class a new, unseen data point belongs, the SVM simply has to calculate on which side of the previously calculated hyperplane the data point lies.
 This is very efficient since it only involves a single scalar product of the size corresponding to the numer of features of the data set.
 
+<p align="center">
+  <img alt="strong scaling CPU" src=".figures/support_vector_machine.png" width="50%">
+</p>
+
 However, normal SVMs suffer in their potential parallelizability.
 Determining the hyperplane boils down to solving a convex quadratic problem.
 For this, most SVM implementations use Sequential Minimal Optimization (SMO), an inherently sequential algorithm.
